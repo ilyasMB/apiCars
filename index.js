@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const app = express();
 const users = require('./users');
+const mysqlManager = require('./mysqlManger.js');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -79,7 +80,8 @@ if(! offer.hasOwnProperty(prop)){
         myResponse.reference = offer.reference;
       //  console.log("will add");
         //console.log({offer});
-        offers.push(offer);
+        //offers.push(offer);
+        mysqlManager.add(offer);
     }
 
     res.header("Content-Type", "text/json");
@@ -114,34 +116,30 @@ app.get('/model/:model', (req, res) => {
 // Supprimer une offre existante
 app.delete('/delete/:reference', (req, res) => {
     var reference = req.param('reference');
-    userToken = req.param('token')
-    var newOffers = [];
-    var isFoundAndDeleted = false;
+    userToken = req.param('token');
     var myResponse = {"reference":reference, "deleted":"KO"};
 
-    if ( !authenticationTokens.includes(userToken) ){
-        myResponse.deleted = "Not Authorized to delete offers";
+
+
+   mysqlManager.delete(reference, userToken, function(isDeleted){
+        if (isDeleted === true){
+            myResponse.deleted = "OK";
+        } else if (isDeleted === null){
+            myResponse.deleted = "Token unauthorized to delete user";
+        }
+
         res.header("Content-Type", "text/json");
         res.send(myResponse);
-        return;
-   }
+   });
+   
 
-    offers.forEach(offer => {
-        if (offer.reference != reference){
-            newOffers.push(offer);
-        }else{
-            isFoundAndDeleted = true;
-        }
-    })
-    offers = newOffers;
-
-    if(isFoundAndDeleted){
-        myResponse.deleted = "OK";
-    }
-
-    res.header("Content-Type", "text/json");
-    res.send(myResponse);
+   
+    
 });
+
+var deleteCallbackFunction = function(isDeleted, myResponse){
+
+}
 
 app.listen(8080, ()=>{
     console.log("started");
