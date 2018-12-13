@@ -35,6 +35,14 @@ var offers = [
         "gaz" : "gazoil",
         "date" : "2017",
         "publish_date" : "25/11/2018"
+    },
+    {
+        "reference" : "3",
+        "name" : "VolksWagen",
+        "model" : "golf7",
+        "gaz" : "gazoil",
+        "date" : "2018",
+        "publish_date" : "25/11/2018"
     }
 ];
 
