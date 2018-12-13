@@ -11,6 +11,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('files'));
 app.get('/users', routes.getRoot);
 
+var authenticationTokens = ["5JHGJ5KKH@HUH5JKJKJK"];
+
 var offers = [
     {
         "reference" : "0",
@@ -54,6 +56,7 @@ app.put('/offer/', (req, res) => {
     var isEligibleForCreated = true;
     var myResponse = {"reference":"", "created":"OK"};
    // var offer  = req.params.offer;
+
    var offer  = {
         reference : req.param('reference'),
         name : req.param('name'),
@@ -111,9 +114,17 @@ app.get('/model/:model', (req, res) => {
 // Supprimer une offre existante
 app.delete('/delete/:reference', (req, res) => {
     var reference = req.param('reference');
+    userToken = req.param('token')
     var newOffers = [];
     var isFoundAndDeleted = false;
     var myResponse = {"reference":reference, "deleted":"KO"};
+
+    if ( !authenticationTokens.includes(userToken) ){
+        myResponse.deleted = "Not Authorized to delete offers";
+        res.header("Content-Type", "text/json");
+        res.send(myResponse);
+        return;
+   }
 
     offers.forEach(offer => {
         if (offer.reference != reference){
